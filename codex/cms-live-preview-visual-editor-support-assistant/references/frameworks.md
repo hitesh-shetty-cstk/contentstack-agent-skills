@@ -66,8 +66,7 @@ Initialise once in `_app`, guarded to the client, since `init()` touches `window
 
 There is no page dedicated to the Pages Router in the Contentstack docs. Use the general pages for
 the mode in play — Set Up Live Preview with REST for SSR for `getServerSideProps`, and the SSG page
-for `getStaticProps` — and the same contracts hold. Contentstack's own Live Preview sanity fixture
-runs on the Pages Router.
+for `getStaticProps` — and the same contracts hold.
 
 ## React SPA with Vite
 
@@ -127,7 +126,7 @@ Gatsby uses its own path via `ContentstackGatsby`, which previews without a rebu
 
 Two cautions. The published Gatsby starter is pinned to a Live Preview Utils v1.x release that
 predates Visual Editor, so it is not a valid Visual Editor reference. And whether Visual Editor
-works on a Gatsby static architecture is an open question internally, not a settled yes. Scope
+works on a Gatsby static architecture is undocumented and unverified, not a settled yes. Scope
 Gatsby answers to Live Preview unless the user has verified Visual Editor themselves.
 
 Note that `getGatsbyDataFormat` still appears in the SDK's README and configuration docs but has no

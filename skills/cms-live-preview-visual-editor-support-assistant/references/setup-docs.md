@@ -49,6 +49,13 @@ request. Its onboarding overlay links to this page:
 
 - [Set Up Timeline](https://www.contentstack.com/docs/developers/set-up-timeline)
 
+### Preview Sharing
+
+Not an integration task. Once Visual Editor works, sharing a preview link is done from the editor by
+a content manager, and the link is valid for seven days. Nothing on the customer's site changes, so
+send them to the documentation rather than debugging their code:
+[Preview Sharing](https://www.contentstack.com/docs/content-managers/preview-sharing).
+
 ### Starters
 
 [Kickstart Next.js](https://www.contentstack.com/docs/developers/kickstarts/next) and its siblings

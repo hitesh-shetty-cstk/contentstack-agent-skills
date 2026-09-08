@@ -1,24 +1,24 @@
 # The Onboarding Check
 
 Every visual experience product ships a setup check that runs automatically when its panel opens.
-There are **three** of them, and they differ in both gates and shape: Live Preview shows one card
-with the first failing gate; Visual Editor shows a six-item list with a status per item; Timeline
-shows a small status card while it checks, then a full-pane "Set Up Timeline" overlay listing three
-items with a status each once one fails. Confirm which product the user is in before reading anything below. It is the highest-yield thing to ask
-about, because it has already run the diagnosis the user is asking you to do.
+There are **three** of them, and they differ in both gates and shape. Live Preview shows one card
+carrying the first failing gate. Visual Editor shows all six of its items, each with its own status,
+but stops evaluating at the first one that fails. Timeline shows a small status card while it checks,
+then a full-pane "Set Up Timeline" overlay listing three items with a status each once one fails.
+Confirm which product the user is in before reading anything below. It is the highest-yield thing to
+ask about, because it has already run the diagnosis the user is asking you to do.
 
-**Always ask for a screenshot of this card before asking anything else.** The step name on it
+**Always ask for a screenshot of the check before asking anything else.** The failing step name
 localises the problem to one gate, and because of how the check is structured, it also tells you
 everything that already passed.
 
-## The property that makes the Live Preview and Timeline checks powerful
+## The property that makes all three checks powerful
 
-For Live Preview the gates are evaluated as a single ordered chain that stops at the first failure,
-so only one step is ever shown. Timeline's three items are chained the same way, each evaluated only
-after the previous one passed, so on its overlay the first empty circle is the failure and the ones
-below it never ran. **Visual Editor is different**: every item is evaluated
-independently and shown with its own status, so read the whole list rather than one card. The
-inference below applies to the two chained checks, Live Preview and Timeline, not to Visual Editor.
+All three evaluate their gates as an ordered chain that stops at the first failure. They differ only
+in how much they show you. Live Preview renders just the failing step. Timeline and Visual Editor
+render their full item list with a status each, but the items below the first incomplete one were
+never evaluated, so they carry no information. **In every product, read the first failing item and
+ignore what is under it.**
 
 So a card reading "Preview Service Not Enabled" is not just one fact. It proves the website loaded
 in the frame, the SDK initialised, and the SDK version is supported. Three contracts are already
@@ -37,7 +37,7 @@ Five gates, in this order.
 | 2 | Verifying Live Preview SDK | **Live Preview SDK Not Initialized** | The frame loaded but no init handshake arrived. `init()` is in server-only code, the enable flag did not parse as a boolean in the deployed build, the init module was tree-shaken out, or init runs after the check window. |
 | 3 | Verifying Live Preview SDK | **Outdated Live Preview SDK Version** | The handshake arrived from a version below the supported minimum. Upgrade Live Preview Utils. |
 | 4 | Verifying Preview Service | **Preview Service Not Enabled** | The SDK is fine and the site is fine, but content is not coming from the Preview Service. This is the fetch layer never switching host and headers, which is the most common failure of all. |
-| 5 | — | **Default Environment Not Set** | Everything works. Setup is recorded as complete. The stack simply has no default preview environment, set in stack settings. |
+| 5 | — | **Default Environment Not Set** | Everything works. The stack simply has no default preview environment, set in stack settings. |
 | — | — | **Setup Complete** | All gates passed. |
 
 The exact body text is worth quoting back to users, because they often paraphrase it into
@@ -47,18 +47,18 @@ origins." Gate 4 reads "Please enable the Preview Service for a seamless live pr
 ## Visual Editor
 
 Visual Editor runs its own check, not Live Preview's. Six items, shown as a list with a status per
-item. Every item is evaluated independently (`steps.every(isComplete)`), so a partially green list is
-the normal way it looks while something is wrong, and the failing items are the ones to read. Card
-text as observed in the UI; the identifier is the implementation's step id.
+item. Unlike Live Preview it shows the whole list, but evaluation still stops at the first item that
+fails, so a partially green list is the normal way it looks while something is wrong and only the
+**first** incomplete item is diagnostic. Item text as observed in the UI.
 
-| # | Item (card text) | Step id | Passes when |
-|---|---|---|---|
-| 1 | Configure environment | `ENVIRONMENT` | both sub-steps below pass |
-| 1a | Default Environment | `LP_DEFAULT_ENV` | the environment in the preview URL's parameters exists on the stack |
-| 1b | Base URL | `BASE_URL` | that environment has a Base URL for the current locale, and its **origin matches the origin of the page being previewed**. A Base URL on a different host or scheme fails here even though the page loads |
-| 2 | Install SDK | `LP_SDK_VERSION` | Live Preview Utils major version is 3 or higher |
-| 3 | Verify Mode for Live Preview | `LP_SDK_INIT_MODE` | `init()` was called with `mode: "builder"`. **`mode: "preview"` fails this gate.** Edit tags alone do not get you a canvas |
-| 4 | Preview Token | `LP_SERVICE` | after the init handshake, the editor polls the Preview Service and it responds; the site is fetching through the Preview Service, not the delivery CDN |
+| # | Item (card text) | Passes when |
+|---|---|---|
+| 1 | Configure environment | both sub-steps below pass |
+| 1a | Default Environment | the environment in the preview URL's parameters exists on the stack |
+| 1b | Base URL | that environment has a Base URL for the current locale, and its **origin matches the origin of the page being previewed**. A Base URL on a different host or scheme fails here even though the page loads |
+| 2 | Install SDK | Live Preview Utils major version is 3 or higher |
+| 3 | Verify Mode for Live Preview | `init()` was called with `mode: "builder"`. **`mode: "preview"` fails this gate.** Edit tags alone do not get you a canvas |
+| 4 | Preview Token | the site's content requests for the previewed page reach the Preview Service (the REST or GraphQL preview host) instead of the delivery CDN. The check looks for that a handful of times across roughly the first 18 seconds after the SDK's `init()` handshake arrives and items 1-3 pass, so a site that fetches only from the delivery CDN, or fetches nothing in that window, fails here |
 
 Two consequences worth stating:
 
@@ -85,14 +85,14 @@ map any of them onto another table. It has two surfaces:
 |---|---|---|---|
 | 1 | Configure the environment | an environment resolves for the session: the `environment` on the Timeline URL, falling back to the stack's default preview environment (`live_preview.default-env`) | no environment on the URL and no default preview environment in stack settings |
 | 2 | Install the latest Live Preview SDK | item 1 passed and the SDK's `init()` handshake reached Timeline with a major version of 2 or higher | `init()` never ran inside the frame, or the SDK is 1.x |
-| 3 | Generate and use Preview Token | item 2 passed and, inside the polling window, the tracker for this session's hash reports a REST or GraphQL Preview Service version, meaning a content request hit the Preview Service | the site fetched from the delivery CDN, or fetched nothing in time |
+| 3 | Generate and use Preview Token | item 2 passed and, by the end of the check's short window, at least one of the site's content requests (REST or GraphQL) has been served by the Preview Service | the site fetched from the delivery CDN, or fetched nothing in time |
 
 The items are chained: 2 is only evaluated after 1 passes, 3 only after 2. Read the **first** empty
 circle. The ones below it never ran and tell you nothing.
 
 **Timing.** The overlay appears ten seconds after the last status change if anything is still
-unchecked, or after one second when no environment resolves at all. Item 3 polls the tracker up to
-five times, first after one second and then every two, roughly a nine-second window. A site whose
+unchecked, or after one second when no environment resolves at all. Item 3 waits roughly nine seconds for
+the site's first Preview Service request. A site whose
 first preview request lands later than that shows item 3 empty on a correct setup. Have the user
 reopen the panel on a warm cache before believing it.
 
@@ -139,7 +139,7 @@ what an unset value means:
 |---|---|---|
 | Timeline | `timeline.onboarding-setup-visible` | visible |
 | Live Preview | `live_preview.lp-onboarding-setup-visible` | hidden |
-| Visual Editor | `visual_builder.onboarding-setup-visible` | depends on whether the settings object exists |
+| Visual Editor | `visual_builder.onboarding-setup-visible` | visible |
 
 The Visual Experience settings screen renders every one of these as **on** when unset, so a stack
 that never explicitly saved the setting can show the toggle on while the card never appears.

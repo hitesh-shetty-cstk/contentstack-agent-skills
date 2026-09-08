@@ -121,7 +121,7 @@ Onboarding Check, or a failure set.
 | **Live Preview** | Side-by-side preview pane, content refresh only | The base. Everything else builds on it. |
 | **Visual Editor** (a.k.a. Visual Builder) | Live Preview plus on-canvas editing | Requires working Live Preview **plus** edit tags **plus** `mode: "builder"` in `init()`. `mode: "preview"` fails its Verify Mode gate even with tags present. Not a separate integration. |
 | **Timeline** | Preview at a point in time | Own Onboarding Check with different gates. |
-| **Preview Sharing** | Share a preview link externally | Plan-gated. |
+| **Preview Sharing** | Share a preview link externally | Plan-gated, and a content-manager feature rather than an integration. The skill carries no troubleshooting for it; point at [Preview Sharing](https://www.contentstack.com/docs/content-managers/preview-sharing). |
 
 If the user is on Visual Editor, confirm whether plain Live Preview works. If it does not, that is
 the problem, and the Visual Editor symptom is downstream noise.
@@ -168,9 +168,9 @@ so the step shown proves every earlier gate passed:
 | Default Environment Not Set | Setup is fine; no default preview environment on the stack |
 | Setup Complete | Reachability, handshake, version and Preview Service are all fine |
 
-**Visual Editor shows a six-item list, not a card.** Every item is evaluated on its own and carries
-its own status, so read the failing items rather than the first one. Configure environment (Default
-Environment, Base URL), Install SDK, Verify Mode for Live Preview, Preview Token. Two of these bite
+**Visual Editor shows a six-item list, not a card**, but it still stops evaluating at the first item
+that fails, so read the first incomplete item and ignore the ones under it. Configure environment
+(Default Environment, Base URL), Install SDK, Verify Mode for Live Preview, Preview Token. Two of these bite
 customers who arrived from a Live Preview setup: Verify Mode fails on `mode: "preview"` (Visual
 Editor needs `mode: "builder"`), and Base URL is origin-exact against the page being previewed.
 
@@ -182,10 +182,10 @@ is the failure and the ones below it never ran:
 |---|---|
 | Configure the environment | No environment on the Timeline URL and no default preview environment on the stack |
 | Install the latest Live Preview SDK | The `init()` handshake never reached Timeline, or the SDK major version is below 2 |
-| Generate and use Preview Token | No content request hit the Preview Service inside the polling window |
+| Generate and use Preview Token | No content request reached the Preview Service before the check stopped waiting |
 
-The overlay appears ten seconds after the last status change and item 3 polls for about nine, so a
-slow site can show an empty circle on a correct setup. Have the user reopen the panel on a warm cache
+The overlay appears ten seconds after the last status change, and item 3 gives up waiting at about
+nine, so a slow site can show an empty circle on a correct setup. Have the user reopen the panel on a warm cache
 before believing it.
 
 Two readings that decide the whole branch:
@@ -311,7 +311,7 @@ identically. Name which one is unmet, with the evidence, before proposing anythi
 
 | # | Contract | One-look check |
 |---|---|---|
-| 1 | `init()` runs, on the client, in the deployed build | `POST /live-preview/tracker` returns 2xx when the panel loads |
+| 1 | `init()` runs, on the client, in the deployed build | The Live Preview Onboarding Check moves past "Live Preview SDK Not Initialized" — that item clears only when the SDK's init message reaches the app, which happens only from `init()` |
 | 2 | Edit tags are generated and land on DOM elements | Some rendered element carries `data-cslp` |
 | 3 | The hash reaches the fetch, which switches host plus headers | Content requests hit a `*-preview.contentstack.com` host |
 | 4 | The preview target is reachable in an iframe | The pane renders at all |

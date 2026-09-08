@@ -7,9 +7,9 @@ meaningless.
 ## Before touching the application
 
 1. **Get the Onboarding Check to appear.** It walks the contracts in order and names the first one
-   that fails. Do not assume its default state: each product stores its own setting under
-   Settings → Visual Experience, and an unset value resolves differently per product, so the toggle
-   can read on while the card never appears. Save the setting explicitly for the product in use.
+   that fails. Do not assume its default state: each product has its own toggle under
+   Settings → Visual Experience, and one that has never been saved can read on while the card never
+   appears. Save the setting explicitly for the product in use.
 2. **Live Preview is enabled on the stack**, with a default preview environment set.
 3. **A Preview Token exists**, generated against the Delivery Token the application already uses.
    A management token is not a substitute and must never reach client-side configuration.
@@ -48,8 +48,9 @@ meaningless.
 
 ## Contract 1: init runs
 
-12. **A `POST /live-preview/tracker` returns 2xx** when the preview panel loads. If it never fires,
-    init did not run.
+12. **The Live Preview Onboarding Check gets past "Live Preview SDK Not Initialized"** when the
+    preview panel loads. That item clears only on the SDK's init message, so while it sticks either
+    `init()` never ran on the client or it ran with a falsy `enable` (item 14).
 13. **`init()` runs on the client**, not in server-only code.
 14. **The enable flag parses as a boolean in the deployed build.** A string `"false"` is truthy.
 15. **`ssr` is set explicitly.** The automatic default keys off `stackSdk` and gets it wrong in both

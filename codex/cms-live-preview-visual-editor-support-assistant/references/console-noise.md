@@ -19,7 +19,8 @@ Routine. It means a postMessage arrived with no registered listener, which happe
 load and teardown. Appears on working setups.
 
 Never conclude anything from it on its own. It does not affect SSR content, and it is not evidence
-that the handshake failed — check for the tracker POST instead.
+that the handshake failed — read the Live Preview Onboarding Check instead, which sticks on **Live
+Preview SDK Not Initialized** until the SDK's init message arrives.
 
 ### Third-party script errors from ad, consent, or personalisation tags
 

@@ -52,7 +52,7 @@ assumption. Keep it to the fields; a Support or Product Engineer wants the facts
 | Started after | new setup (never worked) / release / dependency bump / settings change / role change / nothing known |
 | Failing request | `METHOD host/path → status` — URL redacted, no tokens |
 | Console or server log | one-line excerpt, redacted |
-| Ruled out | contracts verified and how, e.g. "tracker POST 200; `data-cslp` present; requests hit the preview host" |
+| Ruled out | contracts verified and how, e.g. "Onboarding Check past 'Live Preview SDK Not Initialized'; `data-cslp` present; requests hit the preview host" |
 | Suspected category | provisioning / plan gating / browser policy / other |
 | Workaround applied | what, or "none" |
 
