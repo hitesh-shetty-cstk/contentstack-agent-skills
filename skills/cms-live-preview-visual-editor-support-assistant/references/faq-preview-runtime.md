@@ -78,7 +78,7 @@ the fixes here will help.
 - **fix**:
   1. Preserve `live_preview`, `content_type_uid`, `entry_uid`, and `preview_timestamp` in the URL across programmatic navigations, or trigger a hard navigation inside the preview.
   2. For routes that cannot be derived from the entry `url` field, enable **Custom Preview URLs** and then call `setPageContext({ entryUid, contentTypeUid })` on each page (Live Preview Utils v4.4.4+). The call only takes effect when Custom Preview URLs is configured and enabled on the plan; otherwise it is silently ignored and the editor keeps resolving by URL.
-  3. For non-trivial URL structures, configure **Custom Preview URLs** in Settings → Visual Experience → Preview URL with placeholders (e.g. `/blog/{{entry.category}}/{{entry.slug}}`) and base URL aliases.
+  3. For non-trivial URL structures, configure **Custom Preview URLs** in Settings → Visual Experience → Preview URL, following [the docs](https://www.contentstack.com/docs/developers/set-up-live-preview/custom-preview-urls) for patterns and Base URL aliases.
   4. Confirm every route allows iframe embedding, not just the root — an `X-Frame-Options` or CSP `frame-ancestors` header, or a hard redirect to a different host, on a deep route will break navigation inside the panel.
 - **verification**: Click through the site's own nav inside the preview panel; the URL keeps its preview params and edits still apply on the new page.
 

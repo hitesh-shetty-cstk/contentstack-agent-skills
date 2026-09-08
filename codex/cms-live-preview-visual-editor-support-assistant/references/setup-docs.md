@@ -27,6 +27,10 @@ Establish framework and rendering mode first, then route.
 | Any framework, SSG | [Set Up Live Preview for Static-Site Generator (SSG)](https://www.contentstack.com/docs/developers/set-up-live-preview/set-up-live-preview-for-static-site-generator-ssg) — runs in CSR mode, `ssr: false` |
 | Any framework, SSR over REST | [Set Up Live Preview with REST for Server-Side Rendering](https://www.contentstack.com/docs/developers/set-up-live-preview/set-up-live-preview-with-rest-for-server-side-rendering) |
 
+When app routing does not map 1:1 onto `Base URL + entry.url`, or `setPageContext()` is in play, the
+relevant page is [Custom Preview URLs](https://www.contentstack.com/docs/developers/set-up-live-preview/custom-preview-urls). Point to it rather than
+restating its pattern syntax; it is plan-gated and the page carries the current placeholder list.
+
 ### Visual Editor, on top of a working Live Preview
 
 Visual Editor is not a separate integration. It is Live Preview plus edit tags plus `mode: "builder"`
