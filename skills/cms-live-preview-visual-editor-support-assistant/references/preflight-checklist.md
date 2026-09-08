@@ -22,7 +22,11 @@ meaningless.
 
 ## Reachability
 
-6. **The preview host is served over HTTPS** with a trusted certificate.
+6. **The preview host is served over HTTPS.** The Contentstack app is HTTPS, so an `http://` preview
+   URL is mixed content and the browser blocks the frame with no bypass. An untrusted certificate
+   (self-signed localhost, a corporate CA) also blanks the frame, but has a bypass: open the preview
+   URL in its own tab, accept the browser's certificate warning, then reload the preview pane. The
+   browser keeps that exception for the origin.
 7. **`curl -I https://<preview-host>/<a-deep-route>`** returns no `X-Frame-Options`, and a CSP
    `frame-ancestors` that includes the Contentstack app origin. Test a deep route, not the site
    root, and confirm it holds after any redirect.

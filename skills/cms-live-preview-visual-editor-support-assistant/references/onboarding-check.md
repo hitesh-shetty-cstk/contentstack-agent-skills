@@ -33,7 +33,7 @@ Five gates, in this order.
 
 | # | Card while checking | Card on failure | What the failure means |
 |---|---|---|---|
-| 1 | Website Loading | **Could Not Connect to Website** | The site never rendered in the frame. Frame headers (`X-Frame-Options`, CSP `frame-ancestors`), an auth gate or password protection, a wrong or unreachable Base URL, HTTP or an untrusted certificate, or the browser blocking localhost. Nothing after this ran. |
+| 1 | Website Loading | **Could Not Connect to Website** | The site never rendered in the frame. Frame headers (`X-Frame-Options`, CSP `frame-ancestors`), an auth gate or password protection, a wrong or unreachable Base URL, HTTP (mixed content, no bypass) or an untrusted certificate (bypass: open the URL in its own tab, accept the warning, reload the pane), or the browser blocking localhost. Nothing after this ran. |
 | 2 | Verifying Live Preview SDK | **Live Preview SDK Not Initialized** | The frame loaded but no init handshake arrived. `init()` is in server-only code, the enable flag did not parse as a boolean in the deployed build, the init module was tree-shaken out, or init runs after the check window. |
 | 3 | Verifying Live Preview SDK | **Outdated Live Preview SDK Version** | The handshake arrived from a version below the supported minimum. Upgrade Live Preview Utils. |
 | 4 | Verifying Preview Service | **Preview Service Not Enabled** | The SDK is fine and the site is fine, but content is not coming from the Preview Service. This is the fetch layer never switching host and headers, which is the most common failure of all. |
