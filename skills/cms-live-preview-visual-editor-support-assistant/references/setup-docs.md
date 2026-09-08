@@ -37,6 +37,14 @@ fail Visual Editor's Verify Mode gate until the mode is changed from `"preview"`
 - [Set Up Visual Editor for Your Website](https://www.contentstack.com/docs/developers/set-up-visual-editor/set-up-visual-editor-for-your-website)
 - [Set Up Live Edit Tags for Entries with REST](https://www.contentstack.com/docs/developers/set-up-live-preview/set-up-live-edit-tags-for-entries-with-rest) — the `addEditableTags()` reference
 
+### Timeline
+
+Timeline sits on the same Live Preview integration: `init()` in the frame and the Preview Service on
+the fetch. On top of that the site has to forward `preview_timestamp` next to the hash on every
+request. Its onboarding overlay links to this page:
+
+- [Set Up Timeline](https://www.contentstack.com/docs/developers/set-up-timeline)
+
 ### Starters
 
 [Kickstart Next.js](https://www.contentstack.com/docs/developers/kickstarts/next) and its siblings

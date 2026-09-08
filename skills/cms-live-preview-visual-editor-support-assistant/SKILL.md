@@ -177,16 +177,19 @@ Environment, Base URL), Install SDK, Verify Mode for Live Preview, Preview Token
 customers who arrived from a Live Preview setup: Verify Mode fails on `mode: "preview"` (Visual
 Editor needs `mode: "builder"`), and Base URL is origin-exact against the page being previewed.
 
-**Timeline runs a third check.** Three gates, so do not map a Timeline card onto either table:
+**Timeline runs a third check.** A small status card while it runs, then a full-pane "Set Up
+Timeline" overlay with three items once one fails. The items are chained, so the first empty circle
+is the failure and the ones below it never ran:
 
-| Card | Localises to |
+| Overlay item | Localises to |
 |---|---|
-| Default Environment | No default preview environment on the stack |
-| Live Preview SDK | SDK version below the supported minimum |
-| Preview Token | Requests are not using the Preview Service |
+| Configure the environment | No environment on the Timeline URL and no default preview environment on the stack |
+| Install the latest Live Preview SDK | The `init()` handshake never reached Timeline, or the SDK major version is below 2 |
+| Generate and use Preview Token | No content request hit the Preview Service inside the polling window |
 
-Timeline's check also waits a fixed delay before declaring failure, so a slow site can produce a
-failure card on a correct setup. Have the user reopen the panel on a warm cache before believing it.
+The overlay appears ten seconds after the last status change and item 3 polls for about nine, so a
+slow site can show an empty circle on a correct setup. Have the user reopen the panel on a warm cache
+before believing it.
 
 Two readings that decide the whole branch:
 

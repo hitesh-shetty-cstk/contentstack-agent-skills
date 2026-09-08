@@ -3,19 +3,22 @@
 Every visual experience product ships a setup check that runs automatically when its panel opens.
 There are **three** of them, and they differ in both gates and shape: Live Preview shows one card
 with the first failing gate; Visual Editor shows a six-item list with a status per item; Timeline
-shows one card with three gates. Confirm which product the user is in before reading anything below. It is the highest-yield thing to ask
+shows a small status card while it checks, then a full-pane "Set Up Timeline" overlay listing three
+items with a status each once one fails. Confirm which product the user is in before reading anything below. It is the highest-yield thing to ask
 about, because it has already run the diagnosis the user is asking you to do.
 
 **Always ask for a screenshot of this card before asking anything else.** The step name on it
 localises the problem to one gate, and because of how the check is structured, it also tells you
 everything that already passed.
 
-## The property that makes the Live Preview and Timeline cards powerful
+## The property that makes the Live Preview and Timeline checks powerful
 
-For Live Preview and Timeline the gates are evaluated as a single ordered chain that stops at the
-first failure, so only one step is ever shown. **Visual Editor is different**: every item is evaluated
+For Live Preview the gates are evaluated as a single ordered chain that stops at the first failure,
+so only one step is ever shown. Timeline's three items are chained the same way, each evaluated only
+after the previous one passed, so on its overlay the first empty circle is the failure and the ones
+below it never ran. **Visual Editor is different**: every item is evaluated
 independently and shown with its own status, so read the whole list rather than one card. The
-inference below applies to the single-card checks only.
+inference below applies to the two chained checks, Live Preview and Timeline, not to Visual Editor.
 
 So a card reading "Preview Service Not Enabled" is not just one fact. It proves the website loaded
 in the frame, the SDK initialised, and the SDK version is supported. Three contracts are already
@@ -68,18 +71,39 @@ Two consequences worth stating:
 
 ## Timeline
 
-Timeline runs its own check with three gates, not Live Preview's five or Visual Editor's six. Do not
-map any of the three onto another.
+Timeline runs its own check with three items, not Live Preview's five or Visual Editor's six. Do not
+map any of them onto another table. It has two surfaces:
 
-| # | Card | On failure | Meaning |
+1. **A small status card** at the bottom of the pane while the check runs. Its header names the item
+   under test: "Default Environment", then "Live Preview SDK", then "Preview Token", then "All Set!".
+   When everything passes it shows All Set! and disappears about two seconds later.
+2. **A full-pane "Set Up Timeline" overlay** that replaces the card when an item fails. It lists all
+   three items under "Get Started", each with a filled or empty circle. This is the screenshot to ask
+   for.
+
+| # | Overlay item | Passes when | Empty circle means |
 |---|---|---|---|
-| 1 | Default Environment | Set default environment | No default environment configured |
-| 2 | Live Preview SDK | Use updated SDK | SDK version below the supported minimum |
-| 3 | Preview Token | Use preview token | Requests are not using the Preview Service |
+| 1 | Configure the environment | an environment resolves for the session: the `environment` on the Timeline URL, falling back to the stack's default preview environment (`live_preview.default-env`) | no environment on the URL and no default preview environment in stack settings |
+| 2 | Install the latest Live Preview SDK | item 1 passed and the SDK's `init()` handshake reached Timeline with a major version of 2 or higher | `init()` never ran inside the frame, or the SDK is 1.x |
+| 3 | Generate and use Preview Token | item 2 passed and, inside the polling window, the tracker for this session's hash reports a REST or GraphQL Preview Service version, meaning a content request hit the Preview Service | the site fetched from the delivery CDN, or fetched nothing in time |
 
-**Timeline's check has a fixed delay before it declares failure.** A site slower than that window
-produces a failure card even though the setup is correct. If a Timeline user reports a failing gate
-on a site you know is slow, have them re-open the panel on a warm cache before believing the card.
+The items are chained: 2 is only evaluated after 1 passes, 3 only after 2. Read the **first** empty
+circle. The ones below it never ran and tell you nothing.
+
+**Timing.** The overlay appears ten seconds after the last status change if anything is still
+unchecked, or after one second when no environment resolves at all. Item 3 polls the tracker up to
+five times, first after one second and then every two, roughly a nine-second window. A site whose
+first preview request lands later than that shows item 3 empty on a correct setup. Have the user
+reopen the panel on a warm cache before believing it.
+
+**Links on the overlay.** "Configure" opens Settings → Live Preview for the stack. "Install" and
+"Preview Token" open help articles. The footer links to the Set Up Timeline documentation page.
+
+**Closing it.** The X on the full overlay hides it for the current view only; nothing is stored. The
+X on the small status card is where suppression happens: owners, admins and developers get a modal
+offering "this session" (browser storage, per stack) or "for everyone" (writes
+`timeline.onboarding-setup-visible: false` to stack settings); any other role gets the session
+suppression silently.
 
 ## What the check does not cover
 
@@ -136,6 +160,6 @@ Ask for the screenshot rather than the wording. Users paraphrase the step name i
 one, and since each name maps to a specific gate, a paraphrase can send you down the wrong branch.
 
 If they cannot screenshot it, ask for the exact step name and body text as displayed, and confirm
-which product they are in. Live Preview and Timeline share a single-card style but not a set of
-gates, and Visual Editor's is a six-item list; a paraphrased step name from the wrong product sends
+which product they are in. Live Preview shows one card, Timeline a three-item overlay, Visual Editor
+a six-item list, and none of them share gates; a paraphrased step name from the wrong product sends
 you down the wrong branch.

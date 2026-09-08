@@ -1,8 +1,7 @@
 # Timeline FAQ
 
 Timeline previews an entry at a point in time. It shares the Live Preview SDK and the same preview
-host, but it is a distinct product: it has its own Onboarding Check with three gates rather than
-five (see [onboarding-check.md](onboarding-check.md)), and it carries a `preview_timestamp` alongside the usual
+host, but it is a distinct product: it has its own Onboarding Check with three chained items (see [onboarding-check.md](onboarding-check.md)), and it carries a `preview_timestamp` alongside the usual
 `live_preview` hash.
 
 If plain Live Preview does not work, fix that first — everything here assumes the preview path is
