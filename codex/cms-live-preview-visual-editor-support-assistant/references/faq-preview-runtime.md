@@ -27,7 +27,7 @@ the fixes here will help.
 
 ### cached-response-serves-stale-preview
 - **bucket**: preview-runtime
-- **symptom**: Preview works on localhost but not on a deployed environment with identical code and config — the setup status can even show "Setup Completed" and edits go through in the entry form while the rendered page never changes. Or preview stops updating and only recovers in an incognito window or after a hard reload.
+- **symptom**: Preview works on localhost but not on a deployed environment with identical code and config — the setup status can even show "Setup Complete" and edits go through in the entry form while the rendered page never changes. Or preview stops updating and only recovers in an incognito window or after a hard reload.
 - **frameworks**: Next.js, framework-agnostic
 - **rendering_modes**: SSR | SSG/ISR | edge
 - **root_cause**: A cache sits between the browser and the preview service. Whether or not its key includes the `live_preview` hash, preview requests get a stored payload instead of a live one. Seen with a customer CDN in front of the deployed environment, with an app-level fetch cache, and (on the Contentstack side) with stale JS bundles cached in the browser or CDN after a release. The Contentstack SDKs' own cache policies (`IGNORE_CACHE`, `CACHE_THEN_NETWORK`, `CACHE_ELSE_NETWORK`, `NETWORK_ELSE_CACHE`) do **not** switch themselves off for Live Preview — they cache regardless of the preview config.

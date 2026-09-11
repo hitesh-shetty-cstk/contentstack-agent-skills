@@ -54,8 +54,6 @@ If nothing on the canvas is editable at all, start with `edit-tags-not-generated
 
 ---
 
----
-
 ### empty-block-add-button-not-appearing-or-failing
 - **bucket**: visual-editor
 - **symptom**: A page or component with an empty modular-block / multiple field shows no "+ Add Component" affordance, so authors have to go to the form panel to add the first block.
