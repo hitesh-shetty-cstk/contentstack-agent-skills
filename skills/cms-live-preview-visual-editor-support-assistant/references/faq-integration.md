@@ -182,7 +182,23 @@ setup, use `setup-docs.md` instead.
 - **root_cause**: In SSR the SDK does not fetch content. It puts `?live_preview=<hash>&content_type_uid=...&entry_uid=...` on the URL and reloads, and preview state lives **on the Stack instance**. Failure (A) is having two instances: a long-lived "default" Stack for page queries plus a second Stack passed only to `init()`, so the hash never lands on the instance that queries. Failure (B) is having one module-level instance shared across requests: once any request puts it into preview mode, unrelated requests inherit it, and ordinary delivery traffic starts hitting the preview service with a hash that has expired (hashes are session-scoped and time-limited; the preview session issues a fresh one, so a stored or hardcoded hash eventually fails with the tracker-invalid text above) or belongs to another branch. Under concurrency requests can also overwrite each other's config mid-flight.
 - **fix**:
   1. Create a fresh Delivery SDK instance **per request**. Do not share a module-level Stack, and pass the instance down through request-scoped context rather than importing a singleton. This one change fixes both failures.
-  2. Read the hash off the incoming request each time and apply it to that instance: `stack.livePreviewQuery({ live_preview: hash, contentTypeUid, entryUid })`.
+  2. Read the preview parameters off each incoming request and apply them to that instance with `stack.livePreviewQuery()`. What it reads:
+     - `live_preview` (required): the preview hash. When it is empty or missing, the SDK resets the instance to published content and clears every other preview parameter.
+     - `content_type_uid` and `entry_uid`: the entry being previewed. The SDK also accepts `contentTypeUid` and `entryUid`.
+     - `preview_timestamp`: the Timeline position. Without it, Timeline shows the current version.
+     - `include_applied_variants`: optional, defaults to `false`.
+
+     ```ts
+     const q = request.query; // Express req.query, or the page's searchParams; values must be strings
+     stack.livePreviewQuery({
+       live_preview: q.live_preview ?? "",
+       content_type_uid: q.content_type_uid,
+       entry_uid: q.entry_uid,
+       preview_timestamp: q.preview_timestamp,
+     });
+     ```
+
+     Passing `request.query` straight through also works when the framework hands over plain strings.
   3. Call `livePreviewQuery(...)` **unconditionally** per request, with empty values when there is no hash. Calling it only when a hash exists leaves the previous request's hash in place.
   4. Run every query that should show drafts on that instance. A query on an un-hashed instance returns published content.
   5. Drop any separate "live preview only" Stack. `init()` does not need a Stack in SSR.
