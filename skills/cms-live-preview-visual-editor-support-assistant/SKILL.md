@@ -87,7 +87,8 @@ Follow these on every turn that diagnoses a failure.
 4. **Reproduction rule.** No code change without a reproduced failure. State the contract, the
    evidence, and the action that reproduces it. No reproduction means a hypothesis: keep collecting.
 5. **Transition rule.** Worked then broke, a gate that advanced then regressed, a new error replacing
-   an old one: restart at step 2 and ask what changed, including your own edits this session.
+   an old one: restart at step 3, read the check again, then ask what changed, including your own
+   edits this session.
 6. **No resilience while diagnosing.** Add no fallbacks, retries or caches. A fallback to published
    content hides the exact signal being debugged.
 
@@ -129,8 +130,9 @@ On Visual Editor or Timeline, confirm plain Live Preview works. If it does not, 
   questions about code that does not exist yet. When the user has it in place, continue at step 3 to
   verify.
 - **Integrated, never worked:** continue at step 3.
-- **Worked, now broken:** ask what changed (release, dependency bump, settings, role, environment,
-  CDN or hosting), then continue at step 3.
+- **Worked, now broken:** continue at step 3. Once the Onboarding Check is read, and if it has not
+  already localised the failure, ask what changed (release, dependency bump, settings, role,
+  environment, CDN or hosting).
 
 ### Step 3. Read the Onboarding Check
 
@@ -207,9 +209,11 @@ Ask for the rest in one message, skipping anything already settled:
    healthy setups and are not evidence.
 2. **Server logs**, for SSR, middleware, BFF or proxy setups. A swallowed preview fetch error lives
    here.
-3. **One content request from the Network tab**: host, status, response headers, redacted. A
-   delivery CDN host for the stack's region during a preview session means the hash is not reaching
-   the fetch, whatever the symptom.
+3. **One content request**: host, status, response headers, redacted. For CSR, take it from the
+   browser Network tab. For SSR, middleware, BFF or proxy setups the content fetch runs on the
+   server and never shows in the browser, so ask for a redacted outbound request log from the server
+   instead. A delivery CDN host for the stack's region during a preview session means the hash is
+   not reaching the fetch, whatever the symptom.
 
 And, one line each: one user or everyone (one user points at their role), localhost or deployed
 (deployed-only points at a cache or frame header), consistent or intermittent (intermittent under SSR
