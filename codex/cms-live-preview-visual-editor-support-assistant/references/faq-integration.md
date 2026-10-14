@@ -28,7 +28,7 @@ setup, use `setup-docs.md` instead.
        url.hostname = CONTENTSTACK_CDN_HOST; // e.g. cdn.contentstack.io
      }
      ```
-     For GraphQL the equivalent is swapping `graphql.contentstack.com` → `graphql-preview.contentstack.com` and adding the same two headers.
+     For GraphQL the equivalent is swapping `graphql.contentstack.com` → `graphql-preview.contentstack.com` and adding the same two headers. Keep the `access_token` (delivery token) and `Content-Type` headers on every request; the preview headers are added to them, not swapped in.
   4. Bypass any cache layer for preview requests. Do not try to fix it with a smarter cache key: the hash is stable for the whole preview session, so any cache on this path serves the first response for the rest of it.
 - **verification**: Open the entry in Live Preview, then in DevTools → Network confirm requests go to the `*-preview.contentstack.com` host, carry `preview_token` and `live_preview` headers, and return 200. Edit a field without saving; the preview must update. The Onboarding Check should reach **Setup Complete**.
 
